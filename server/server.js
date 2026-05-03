@@ -33,7 +33,7 @@ app.get('/api/health', (req, res) => {
 const distPath = path.join(__dirname, '../client/dist');
 app.use(express.static(distPath));
 
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => {
   const indexPath = path.join(distPath, 'index.html');
   res.sendFile(indexPath, (err) => {
     if (err) res.status(404).json({ error: 'Not found' });
