@@ -10,11 +10,12 @@ const ProjectDetails = () => {
   const { user } = useAuth();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Modals
   const [showTaskModal, setShowTaskModal] = useState(false);
-  const [newTask, setNewTask] = useState({ title: '', description: '', status: 'To Do', dueDate: '' });
+  const [newTask, setNewTask] = useState({ title: '', description: '', status: 'To Do', dueDate: '', assignee: '' });
 
   useEffect(() => {
     fetchProjectData();
@@ -22,12 +23,14 @@ const ProjectDetails = () => {
 
   const fetchProjectData = async () => {
     try {
-      const [projectRes, tasksRes] = await Promise.all([
+      const [projectRes, tasksRes, usersRes] = await Promise.all([
         axios.get(`/api/projects/${id}`),
-        axios.get(`/api/tasks?project=${id}`)
+        axios.get(`/api/tasks?project=${id}`),
+        axios.get('/api/auth/users')
       ]);
       setProject(projectRes.data);
       setTasks(tasksRes.data);
+      setUsers(usersRes.data);
     } catch (error) {
       console.error('Error fetching project data', error);
     } finally {
@@ -38,9 +41,12 @@ const ProjectDetails = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/tasks', { ...newTask, project: id });
+      const taskData = { ...newTask, project: id };
+      if (!taskData.assignee) delete taskData.assignee;
+      
+      await axios.post('/api/tasks', taskData);
       setShowTaskModal(false);
-      setNewTask({ title: '', description: '', status: 'To Do', dueDate: '' });
+      setNewTask({ title: '', description: '', status: 'To Do', dueDate: '', assignee: '' });
       fetchProjectData();
     } catch (error) {
       console.error('Error creating task', error);
@@ -53,6 +59,21 @@ const ProjectDetails = () => {
       fetchProjectData();
     } catch (error) {
       console.error('Error updating status', error);
+    }
+  };
+
+  const handleDragStart = (e, taskId) => {
+    e.dataTransfer.setData('taskId', taskId);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, status) => {
+    const taskId = e.dataTransfer.getData('taskId');
+    if (taskId) {
+      updateTaskStatus(taskId, status);
     }
   };
 
@@ -81,7 +102,12 @@ const ProjectDetails = () => {
 
       <div className="kanban-board">
         {['To Do', 'In Progress', 'Done'].map(status => (
-          <div key={status} className="kanban-column glass-panel">
+          <div 
+            key={status} 
+            className="kanban-column card"
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, status)}
+          >
             <div className="kanban-header">
               <h3>{status}</h3>
               <span className="task-count">{getTasksByStatus(status).length}</span>
@@ -89,7 +115,13 @@ const ProjectDetails = () => {
             
             <div className="kanban-tasks">
               {getTasksByStatus(status).map(task => (
-                <div key={task._id} className="task-card">
+                <div 
+                  key={task._id} 
+                  className="task-card"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, task._id)}
+                  style={{ cursor: 'grab' }}
+                >
                   <h4>{task.title}</h4>
                   {task.description && <p className="task-desc">{task.description}</p>}
                   
@@ -97,27 +129,13 @@ const ProjectDetails = () => {
                     {task.dueDate && (
                       <span className="meta-item"><FiClock /> {new Date(task.dueDate).toLocaleDateString()}</span>
                     )}
-                    {task.assignee && (
-                      <span className="meta-item"><FiUser /> {task.assignee.name}</span>
-                    )}
-                  </div>
-
-                  <div className="task-actions mt-4">
-                    <select 
-                      className="status-select"
-                      value={task.status}
-                      onChange={(e) => updateTaskStatus(task._id, e.target.value)}
-                    >
-                      <option value="To Do">To Do</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Done">Done</option>
-                    </select>
+                    <span className="meta-item"><FiUser /> {task.assignee ? task.assignee.name : 'Unassigned'}</span>
                   </div>
                 </div>
               ))}
               
               {getTasksByStatus(status).length === 0 && (
-                <div className="empty-column">No tasks</div>
+                <div className="empty-column">Drag tasks here</div>
               )}
             </div>
           </div>
@@ -126,7 +144,7 @@ const ProjectDetails = () => {
 
       {showTaskModal && (
         <div className="modal-backdrop">
-          <div className="modal-content glass-panel animate-fade-in">
+          <div className="modal-content card animate-fade-in">
             <h2 className="mb-6">Add New Task</h2>
             <form onSubmit={handleCreateTask}>
               <div className="input-group">
@@ -161,14 +179,29 @@ const ProjectDetails = () => {
                     <option value="Done">Done</option>
                   </select>
                 </div>
-                <div className="input-group">
-                  <label>Due Date</label>
-                  <input 
-                    type="date" 
-                    className="input-field"
-                    value={newTask.dueDate}
-                    onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="input-group">
+                    <label>Due Date</label>
+                    <input 
+                      type="date" 
+                      className="input-field"
+                      value={newTask.dueDate}
+                      onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Assignee</label>
+                    <select 
+                      className="input-field"
+                      value={newTask.assignee}
+                      onChange={(e) => setNewTask({...newTask, assignee: e.target.value})}
+                    >
+                      <option value="">Unassigned</option>
+                      {users.map(u => (
+                        <option key={u._id} value={u._id}>{u.name} ({u.role})</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end gap-4 mt-8">

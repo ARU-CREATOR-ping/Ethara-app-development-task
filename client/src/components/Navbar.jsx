@@ -7,7 +7,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="navbar glass-panel">
+    <nav className="navbar card">
       <div className="navbar-brand">
         <span className="logo-icon">🚀</span>
         <h2>TaskFlow</h2>

@@ -10,7 +10,8 @@ const Dashboard = () => {
     totalProjects: 0,
     tasksTodo: 0,
     tasksInProgress: 0,
-    tasksDone: 0
+    tasksDone: 0,
+    tasksOverdue: 0
   });
   const [recentTasks, setRecentTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,11 +27,18 @@ const Dashboard = () => {
         const tasks = tasksRes.data;
         const myTasks = user.role === 'Admin' ? tasks : tasks.filter(t => t.assignee?._id === user.id);
         
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         setStats({
           totalProjects: projectsRes.data.length,
           tasksTodo: myTasks.filter(t => t.status === 'To Do').length,
           tasksInProgress: myTasks.filter(t => t.status === 'In Progress').length,
-          tasksDone: myTasks.filter(t => t.status === 'Done').length
+          tasksDone: myTasks.filter(t => t.status === 'Done').length,
+          tasksOverdue: myTasks.filter(t => {
+            if (t.status === 'Done' || !t.dueDate) return false;
+            return new Date(t.dueDate) < today;
+          }).length
         });
         
         // Get 5 most recent tasks
@@ -55,7 +63,7 @@ const Dashboard = () => {
       </div>
 
       <div className="stats-grid">
-        <div className="stat-card glass-panel">
+        <div className="stat-card card">
           <div className="stat-icon" style={{ background: 'rgba(99, 102, 241, 0.2)', color: 'var(--primary-color)' }}>
             <FiFolder />
           </div>
@@ -64,7 +72,7 @@ const Dashboard = () => {
             <p>Total Projects</p>
           </div>
         </div>
-        <div className="stat-card glass-panel">
+        <div className="stat-card card">
           <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.2)', color: 'var(--warning-color)' }}>
             <FiAlertCircle />
           </div>
@@ -73,7 +81,7 @@ const Dashboard = () => {
             <p>To Do Tasks</p>
           </div>
         </div>
-        <div className="stat-card glass-panel">
+        <div className="stat-card card">
           <div className="stat-icon" style={{ background: 'rgba(56, 189, 248, 0.2)', color: 'var(--secondary-color)' }}>
             <FiClock />
           </div>
@@ -82,7 +90,7 @@ const Dashboard = () => {
             <p>In Progress</p>
           </div>
         </div>
-        <div className="stat-card glass-panel">
+        <div className="stat-card card">
           <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.2)', color: 'var(--success-color)' }}>
             <FiCheckCircle />
           </div>
@@ -91,10 +99,19 @@ const Dashboard = () => {
             <p>Completed Tasks</p>
           </div>
         </div>
+        <div className="stat-card card" style={{ border: stats.tasksOverdue > 0 ? '1px solid var(--danger-color)' : '' }}>
+          <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.2)', color: 'var(--danger-color)' }}>
+            <FiAlertCircle />
+          </div>
+          <div className="stat-info">
+            <h3 style={{ color: stats.tasksOverdue > 0 ? 'var(--danger-color)' : '' }}>{stats.tasksOverdue}</h3>
+            <p>Overdue Tasks</p>
+          </div>
+        </div>
       </div>
 
       <div className="dashboard-content grid md:grid-cols-2 gap-6 mt-8">
-        <div className="glass-panel">
+        <div className="card">
           <h2 className="mb-4">Recent Tasks</h2>
           {recentTasks.length === 0 ? (
             <p className="empty-state">No recent tasks found.</p>

@@ -22,7 +22,7 @@ const Signup = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card glass-panel animate-fade-in">
+      <div className="auth-card card animate-fade-in">
         <div className="auth-header">
           <h2>Create Account</h2>
           <p>Join to manage and track your projects</p>

@@ -20,7 +20,7 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card glass-panel animate-fade-in">
+      <div className="auth-card card animate-fade-in">
         <div className="auth-header">
           <h2>Welcome Back</h2>
           <p>Login to your account to manage tasks</p>
@@ -52,6 +52,10 @@ const Login = () => {
           <button type="submit" className="btn btn-primary btn-full">Login</button>
         </form>
         
+        <div style={{ textAlign: 'center', marginTop: '12px' }}>
+          <Link to="/forgot-password" style={{ fontSize: '0.85rem' }}>Forgot Password?</Link>
+        </div>
+
         <div className="auth-footer">
           <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
         </div>

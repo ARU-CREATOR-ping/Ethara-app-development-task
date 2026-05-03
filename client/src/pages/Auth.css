@@ -9,7 +9,6 @@
 .auth-card {
   width: 100%;
   max-width: 420px;
-  padding: 40px;
 }
 
 .auth-header {
@@ -20,9 +19,7 @@
 .auth-header h2 {
   font-size: 1.8rem;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .auth-header p {
@@ -31,19 +28,19 @@
 }
 
 .auth-error {
-  background: rgba(239, 68, 68, 0.1);
+  background: #fff1f1;
   color: var(--danger-color);
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   margin-bottom: 24px;
   font-size: 0.9rem;
   text-align: center;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid #ffb3b8;
 }
 
 .btn-full {
   width: 100%;
-  padding: 14px;
+  padding: 10px;
   font-size: 1rem;
   margin-top: 10px;
 }
@@ -53,14 +50,4 @@
   text-align: center;
   font-size: 0.9rem;
   color: var(--text-secondary);
-}
-
-select.input-field {
-  appearance: none;
-  background-color: rgba(0,0,0,0.2);
-}
-
-select.input-field option {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
 }
