@@ -14,7 +14,8 @@ const projectSchema = new mongoose.Schema({
     filename: String,
     url: String,
     uploadedAt: { type: Date, default: Date.now }
-  }]
+  }],
+  isUrgent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.model('Project', projectSchema);

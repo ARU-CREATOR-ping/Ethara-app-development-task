@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiPlus, FiFolder, FiTrash2, FiUsers } from 'react-icons/fi';
+import { FiPlus, FiFolder, FiTrash2, FiUsers, FiAlertTriangle } from 'react-icons/fi';
 import './Projects.css';
 
 const PROJECT_STATUSES = [
@@ -79,6 +79,18 @@ const Projects = () => {
       } catch (error) {
         console.error('Error deleting project', error);
       }
+    }
+  };
+
+  const handleToggleUrgent = async (projectId) => {
+    try {
+      const res = await axios.put(`/api/projects/${projectId}/urgent`);
+      setProjects(projects.map(p => p._id === projectId ? res.data : p));
+      if (selectedProject && selectedProject._id === projectId) {
+        setSelectedProject(res.data);
+      }
+    } catch (error) {
+      console.error('Error toggling urgency', error);
     }
   };
 
@@ -177,7 +189,7 @@ const Projects = () => {
               {getProjectsByStatus(column.id).map(project => (
                 <div 
                   key={project._id} 
-                  className="project-card-draggable"
+                  className={`project-card-draggable${project.isUrgent ? ' urgent' : ''}`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, project._id)}
                 >
@@ -187,6 +199,7 @@ const Projects = () => {
                       className="project-card-title"
                       style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left', cursor: 'pointer' }}
                     >
+                      {project.isUrgent && <span className="urgent-badge" style={{ marginRight: '6px' }}><FiAlertTriangle size={10} /> Urgent</span>}
                       {project.name}
                     </button>
                     {user.role === 'Admin' && (
@@ -298,6 +311,14 @@ const Projects = () => {
                     Edit
                   </button>
                 )}
+                <button
+                  className={`btn-urgent${selectedProject.isUrgent ? ' is-urgent' : ''}`}
+                  onClick={() => handleToggleUrgent(selectedProject._id)}
+                  title={selectedProject.isUrgent ? 'Remove Urgent flag' : 'Mark as Urgent'}
+                >
+                  <FiAlertTriangle size={14} />
+                  {selectedProject.isUrgent ? '🔴 Urgent' : 'Mark Urgent'}
+                </button>
               </div>
             </div>
             

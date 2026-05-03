@@ -102,6 +102,23 @@ router.put('/:id/status', auth, async (req, res) => {
   }
 });
 
+router.put('/:id/urgent', auth, async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+
+    if (req.user.role !== 'Admin' && !project.members.includes(req.user.userId)) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    project.isUrgent = !project.isUrgent;
+    await project.save();
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating urgency' });
+  }
+});
+
 router.delete('/:id', auth, requireAdmin, async (req, res) => {
   try {
     const project = await Project.findByIdAndDelete(req.params.id);
