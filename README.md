@@ -1,60 +1,54 @@
-# Team Task Manager
+# Ethara – Team Task Manager
 
-A full-stack project and task management application designed with a premium, dynamic UI.
+A project management web app I built for managing teams and tracking project progress. It has a Kanban-style board where you can drag projects between stages, assign members, and upload files.
 
-## Features
-- **Authentication**: Secure JWT-based Signup/Login.
-- **Role-Based Access**: 
-  - **Admin**: Create projects, add tasks, delete content, and update anything.
-  - **Member**: View projects/tasks and update task statuses.
-- **Dashboard**: High-level overview with task statistics and recent activity.
-- **Project & Task Management**: Kanban-style project boards to track To Do, In Progress, and Done tasks.
+## What I Built
 
-## Technology Stack
-- **Frontend**: React (Vite), React Router, Vanilla CSS (Premium styling).
-- **Backend**: Node.js, Express.js.
-- **Database**: MongoDB & Mongoose.
+- **Login / Signup** with JWT tokens, roles (Admin and Member)
+- **Admin can** create projects, assign team members, edit or delete projects, mark tasks urgent, and approve completed work
+- **Members can** view assigned projects, move them across stages, and upload files
+- **5-stage Kanban board** – To Do → In Progress → Quality Assurance → Completed → Accepted
+- **Drag and Drop** – just grab a card and drop it into the next column
+- **Mark Urgent** – flag any project with a red urgent badge
+- **File Attachments** – upload docs, images, or PDFs directly to a project
+- **Forgot Password** – reset your password from the login screen
+- **Dashboard** with stats and recent activity
 
-## Running Locally
+## Tech Stack
 
-1. **Install Dependencies**
-   ```bash
-   cd client && npm install
-   cd ../server && npm install
-   ```
+- Frontend: React + Vite, Vanilla CSS
+- Backend: Node.js, Express
+- Database: MongoDB (Atlas)
+- Auth: JWT
 
-2. **Environment Variables**
-   Create a `.env` file in the `server` directory:
-   ```env
-   PORT=5000
-   MONGO_URI=mongodb://127.0.0.1:27017/taskmanager
-   JWT_SECRET=super_secret_jwt_key_for_task_manager
-   ```
+## How to Run Locally
 
-3. **Start the Development Servers**
-   In one terminal (Backend):
-   ```bash
-   cd server
-   node server.js
-   ```
-   In another terminal (Frontend):
-   ```bash
-   cd client
-   npm run dev
-   ```
+**1. Install packages**
+```
+cd client
+npm install
 
-## Deployment to Railway
+cd ../server
+npm install
+```
 
-This repository is pre-configured for a seamless deployment on Railway using a monorepo setup.
+**2. Create a `.env` file inside the `server` folder**
+```
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+```
 
-1. Push this code to a GitHub repository.
-2. Go to [Railway](https://railway.app/) and create a new project.
-3. Choose **Deploy from GitHub repo** and select your repository.
-4. Add a **MongoDB plugin** to your Railway project.
-5. In your Railway service settings, add the following environment variables:
-   - `MONGO_URI`: The connection URL from the Railway MongoDB plugin.
-   - `JWT_SECRET`: A strong random string for JWT signing.
-6. Railway will automatically detect the `railway.json` and build both the frontend and backend, serving the entire application from a single service!
+**3. Start the backend**
+```
+cd server
+node server.js
+```
 
-## Demo Video
-(Link to demo video will go here)
+**4. Start the frontend** (open a new terminal)
+```
+cd client
+npm run dev
+```
+
+App will open at `http://localhost:5173`
